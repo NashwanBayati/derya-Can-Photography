@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derya Can Photography</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tooplate-living-parallax.css">
+    <style>
+        #categoriesOverlay .categories-showcase {
+            display: grid;
+            gap: 20px;
+            margin-top: 18px;
+        }
+
+        #categoriesOverlay .overlay-content {
+            scroll-behavior: smooth;
+            overscroll-behavior: contain;
+        }
+
+        #categoriesOverlay .category-showcase {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+            animation: categoryCardIn 0.45s ease both;
+        }
+
+        #categoriesOverlay .category-showcase:nth-child(2) { animation-delay: 0.04s; }
+        #categoriesOverlay .category-showcase:nth-child(3) { animation-delay: 0.08s; }
+        #categoriesOverlay .category-showcase:nth-child(4) { animation-delay: 0.12s; }
+        #categoriesOverlay .category-showcase:nth-child(5) { animation-delay: 0.16s; }
+        #categoriesOverlay .category-showcase:nth-child(6) { animation-delay: 0.2s; }
+        #categoriesOverlay .category-showcase:nth-child(7) { animation-delay: 0.24s; }
+        #categoriesOverlay .category-showcase:nth-child(8) { animation-delay: 0.28s; }
+        #categoriesOverlay .category-showcase:nth-child(9) { animation-delay: 0.32s; }
+
+        #categoriesOverlay .category-showcase h3 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        #categoriesOverlay .category-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        #categoriesOverlay .category-gallery-image {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            cursor: zoom-in;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        #categoriesOverlay .category-gallery-image:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
+        }
+
+        .category-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(12, 7, 3, 0.8);
+            backdrop-filter: blur(0px);
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.35s ease, backdrop-filter 0.35s ease;
+        }
+
+        .category-lightbox.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            backdrop-filter: blur(6px);
+        }
+
+        .category-lightbox-content {
+            width: min(1100px, 96vw);
+            background: linear-gradient(140deg, rgba(60, 46, 35, 0.96), rgba(32, 26, 21, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+            transform: translateY(18px) scale(0.96);
+            transition: transform 0.35s ease;
+        }
+
+        .category-lightbox.active .category-lightbox-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .category-lightbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .category-lightbox-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-lightbox-title {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.94);
+            font-weight: 600;
+        }
+
+        .category-lightbox-back {
+            height: 38px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding: 0 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .category-lightbox-back:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .category-lightbox-close {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .category-lightbox-body {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .category-lightbox-stage {
+            position: relative;
+            width: 100%;
+            max-height: 72vh;
+            min-height: 45vh;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            cursor: zoom-in;
+        }
+
+        .category-lightbox-main {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 72vh;
+            object-fit: contain;
+            user-select: none;
+            transform-origin: center center;
+            transform: translate(0px, 0px) scale(1);
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .category-lightbox-main.opening {
+            animation: categoryImageOpen 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes categoryImageOpen {
+            0% {
+                opacity: 0;
+                transform: translate(0px, 10px) scale(0.94);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(0px, 0px) scale(1);
+            }
+        }
+
+        .category-lightbox-stage.zoomed {
+            cursor: grab;
+        }
+
+        .category-lightbox-stage.dragging {
+            cursor: grabbing;
+        }
+
+        .category-lightbox-toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .category-lightbox-zoom {
+            min-width: 40px;
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding: 0 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .category-lightbox-zoom:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .category-lightbox-zoom-level {
+            min-width: 64px;
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.95);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .category-lightbox-nav {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .category-lightbox-nav:hover,
+        .category-lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        @keyframes categoryCardIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #categoriesOverlay .category-showcase h3 {
+                font-size: 1.15rem;
+            }
+
+            #categoriesOverlay .category-gallery-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .category-lightbox-body {
+                grid-template-columns: 1fr;
+            }
+
+            .category-lightbox-nav {
+                display: none;
+            }
+
+            .category-lightbox-stage {
+                min-height: 34vh;
+                max-height: 62vh;
+            }
+
+            .category-lightbox-title {
+                font-size: 0.95rem;
+            }
+
+            .category-lightbox-back {
+                padding: 0 12px;
+                font-size: 0.82rem;
+            }
+        }
+    </style>
+<!--
+
+Nashwan Bayati
+
+Free HTML CSS Template
+
+-->
+</head>
+<body>
+    <!-- UI Toggle Button - Always Visible -->
+    <button class="ui-toggle-btn" id="uiToggleBtn" aria-label="Benutzeroberflaeche ein- oder ausblenden">
+        <svg viewBox="0 0 24 24" id="eyeIcon">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    </button>
+
+    <!-- Header -->
+    <header class="ui-element">
+        <div class="logo">Derya Can Photography</div>
+        
+        <nav id="mainNav">
+            <a onclick="openOverlay('about')">Über mich</a>
+            <a onclick="openOverlay('categories')">Kategorien</a>
+            <a onclick="openOverlay('contact')">Kontakt</a>
+            <button class="fullscreen-btn" id="fullscreenBtn" aria-label="Vollbild ein- oder ausschalten">
+                <svg viewBox="0 0 24 24">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+            </button>
+        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- Slider -->
+    <div class="slider-wrapper">
+        <div class="slider-container" id="slider">
+            <!-- Slide 1 -->
+            <div class="slide active" data-index="0">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-06.jpeg" alt="Geborgenheit von Anfang an">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Geborgenheit von Anfang an</h2>
+                    <p>Zarte Newborn-Aufnahmen voller Ruhe, Wärme und zeitloser Schönheit.</p>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide" data-index="1">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-12.jpeg" alt="Der große Tag">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Der große Tag</h2>
+                    <p>Wertvolle Augenblicke, die den Beginn eines neuen Kapitels für immer festhalten.</p>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide" data-index="2">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-03.jpg" alt="Geborgen träumen">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Geborgen träumen</h2>
+                    <p>Zeitlose Aufnahmen, die die Schönheit der ersten Lebenstage bewahren.</p>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide" data-index="3">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-01.jpg" alt="Liebe auf den ersten Blick">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Liebe auf den ersten Blick</h2>
+                    <p>Die einzigartigen ersten Momente gemeinsam als Familie liebevoll eingefangen.</p>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide" data-index="4">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-05.jpeg" alt="Gemeinsam für immer">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Gemeinsam für immer</h2>
+                    <p>Emotionale Familienporträts voller Wärme, Verbundenheit und echter Erinnerungen.</p>
+                </div>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide" data-index="5">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-02.jpeg" alt="Ein Meer aus Liebe">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Ein Meer aus Liebe</h2>
+                    <p>Zwischen sanften Blautönen entsteht eine Erinnerung für die Ewigkeit.</p>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide" data-index="6">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-01.jpeg" alt="Süße Träume">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Süße Träume</h2>
+                    <p>Ein zauberhafter Augenblick, der die Schönheit der ersten Tage für immer bewahrt.</p>
+                </div>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide" data-index="7">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-08.jpeg" alt="Ein Lächeln voller Magie">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Ein Lächeln voller Magie</h2>
+                    <p>Ein einzigartiger Moment, der die Schönheit der Kindheit festhält.</p>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide" data-index="8">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-09.jpeg" alt="Das Abenteuer beginnt">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Das Abenteuer beginnt</h2>
+                    <p>Wertvolle Erinnerungen an die Zeit, bevor aus einem Traum eine Familie wird.</p>
+                </div>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide" data-index="9">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-10.jpeg" alt="Süße Glücksmomente">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Süße Glücksmomente</h2>
+                    <p></p>Ein süßer Moment voller Charme, festgehalten für die Ewigkeit.</p>
+                </div>
+            </div>
+
+            <!-- Slide 11 -->
+            <div class="slide" data-index="10">
+                <div class="parallax-layer background-layer">
+                    <img src="images/StartBild/derya-can-startbild-14.jpeg" alt="Hinter der Kamera">
+                </div>
+                <div class="image-info ui-element">
+                    <h2>Hinter der Kamera</h2>
+                    <p>Mit Kreativität, Erfahrung und viel Liebe zum Detail begleite ich Familien auf ihrem Weg zu unvergesslichen Erinnerungen.</p>
+                </div>
+            </div>
+
+
+            <!-- Navigation -->
+            <div class="nav-arrow prev ui-element">‹</div>
+            <div class="nav-arrow next ui-element">›</div>
+
+            <!-- Dots -->
+            <div class="dots-container ui-element">
+                <span class="dot active" data-slide="0"></span>
+                <span class="dot" data-slide="1"></span>
+                <span class="dot" data-slide="2"></span>
+                <span class="dot" data-slide="3"></span>
+                <span class="dot" data-slide="4"></span>
+                <span class="dot" data-slide="5"></span>
+                <span class="dot" data-slide="6"></span>
+                <span class="dot" data-slide="7"></span>
+                <span class="dot" data-slide="8"></span>
+                <span class="dot" data-slide="9"></span>
+                <span class="dot" data-slide="10"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Parallax Shapes -->
+    <div class="parallax-shape shape-1 ui-element"></div>
+    <div class="parallax-shape shape-2 ui-element"></div>
+
+    <!-- Play/Pause Button -->
+    <button class="play-pause-btn ui-element" id="playPauseBtn" aria-label="Diashow starten oder pausieren">
+        <svg viewBox="0 0 24 24">
+            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+        </svg>
+    </button>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container ui-element">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Duration Controls -->
+    <div class="duration-controls ui-element">
+        <button class="duration-btn" id="decreaseDuration" aria-label="Dauer verkuerzen">−</button>
+        <div class="duration-display" id="durationDisplay">5<span>s</span></div>
+        <button class="duration-btn" id="increaseDuration" aria-label="Dauer verlaengern">+</button>
+    </div>
+
+    <!-- About Overlay -->
+        <div class="overlay" id="aboutOverlay">
+            <div class="overlay-content">
+                <button class="close-btn" onclick="closeOverlay('about')">×</button>
+
+                <h2>Über mich</h2>
+
+                <p>Ich bin Derya Can - Baby- und Familienfotografin mit eigenem Studio in Werdohl.</p>
+
+                <p>
+                    Die ersten Tage mit einem Baby sind voller Gefühle - Liebe, Staunen, vielleicht auch Unsicherheit.
+                    Gerade für Mamas, die zum ersten Mal diesen Weg gehen, ist alles neu und besonders.
+                    Für mich bedeutet meine Arbeit deshalb mehr als Fotografie:
+                    Ich möchte euch begleiten, euch Sicherheit geben und diese wertvolle Zeit mit euch gemeinsam erleben.
+                </p>
+                <img src="images/Kategorien/Studio/Studio06.jpg" alt="Familienfoto" class="overlay-image">
+                <p>
+                    Auch die Väter liegen mir sehr am Herzen. Oft stehen sie im Hintergrund,
+                    doch sie sind von Anfang an eine große Unterstützung - schon während der Schwangerschaft.
+                    Diese stille Stärke und die besondere Verbindung zur Familie verdienen genauso Aufmerksamkeit.
+                </p>
+
+                <p>
+                    Mir geht es nicht um reine Kundentermine. Ich wünsche mir echte Begegnungen, Vertrauen und eine Verbindung
+                    auf Herzensebene. Denn wenn ihr euch wohlfühlt, entstehen Bilder voller Wärme, Nähe und Echtheit.
+                </p>
+
+                <p>
+                    Es erfüllt mich jedes Mal aufs Neue, eure besonderen Momente für die Ewigkeit festzuhalten.
+                </p>
+
+                <p>
+                    <strong>Aus dem Bauch ins Herz. Eure Geschichte beginnt hier - und ich darf sie für euch sichtbar machen.</strong>
+                </p>
+
+                <img src="images/Screenshot2.png" alt="Familienfoto" class="overlay-image">
+            </div>
+        </div>
+<!-- Kategorien Overlay -->
+<div class="overlay" id="categoriesOverlay">
+    <div class="overlay-content">
+        <button class="close-btn" onclick="closeOverlay('categories')">×</button>
+        <h2>Kategorien</h2>
+        <p>Hier findet ihr alle Kategorien mit Bildern. Klickt auf ein Bild für eine große Galerie-Ansicht.</p>
+
+        <div class="categories-showcase">
+
+                        <section class="category-showcase" data-category-name="Hochzeit & Verlobung">
+                <h3>Hochzeit & Verlobung</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-1.jpeg" alt="Hochzeit und Verlobung Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-2.jpeg" alt="Hochzeit und Verlobung Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-3.jpeg" alt="Hochzeit und Verlobung Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-4.jpeg" alt="Hochzeit und Verlobung Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-5.jpeg" alt="Hochzeit und Verlobung Bild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-6.jpeg" alt="Hochzeit und Verlobung Bild 6">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-7.jpeg" alt="Hochzeit und Verlobung Bild 7">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-8.jpeg" alt="Hochzeit und Verlobung Bild 8">
+                    <img class="category-gallery-image" src="images/Kategorien/Hochzeit_Verlobung/Hochzeit_Verlobung-9.jpeg" alt="Hochzeit und Verlobung Bild 9">
+
+                </div>
+            </section>
+
+            
+            <section class="category-showcase" data-category-name="Hennabilder">
+                <h3>Hennabilder</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-1.jpeg" alt="Hennabilder Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-2.jpeg" alt="Hennabilder Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-3.jpeg" alt="Hennabilder Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-4.jpeg" alt="Hennabilder Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-5.jpeg" alt="Hennabilder Bild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-6.jpeg" alt="Hennabilder Bild 6">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-7.jpeg" alt="Hennabilder Bild 7">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-8.jpeg" alt="Hennabilder Bild 8">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-9.jpeg" alt="Hennabilder Bild 9">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-10.jpeg" alt="Hennabilder Bild 10">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-11.jpeg" alt="Hennabilder Bild 11">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-12.jpeg" alt="Hennabilder Bild 12">
+                    <img class="category-gallery-image" src="images/Kategorien/Hennabilder/Hennabilder-13.jpeg" alt="Hennabilder Bild 13">
+                </div>
+            </section>
+
+            
+
+            <section class="category-showcase" data-category-name="Schwangerschaftsbilder">
+                <h3>Schwangerschaftsbilder</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/311.jpeg" alt="Schwangerschaftsbild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/312.jpeg" alt="Schwangerschaftsbild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/313.jpeg" alt="Schwangerschaftsbild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/314.jpeg" alt="Schwangerschaftsbild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/315.jpeg" alt="Schwangerschaftsbild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/318.jpeg" alt="Schwangerschaftsbild 8">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/319.jpeg" alt="Schwangerschaftsbild 9">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/320.jpeg" alt="Schwangerschaftsbild 10">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/321.jpeg" alt="Schwangerschaftsbild 11">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/322.jpeg" alt="Schwangerschaftsbild 12">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/323.jpeg" alt="Schwangerschaftsbild 13">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/324.jpeg" alt="Schwangerschaftsbild 14">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/325.jpeg" alt="Schwangerschaftsbild 15">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 1.jpg" alt="Schwangerschaftsbild 16">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 3.jpg" alt="Schwangerschaftsbild 17">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 4.jpg" alt="Schwangerschaftsbild 18">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 7.jpg" alt="Schwangerschaftsbild 19">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 14.jpg" alt="Schwangerschaftsbild 20">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 15.jpg" alt="Schwangerschaftsbild 21">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 20.jpg" alt="Schwangerschaftsbild 22">
+                    <img class="category-gallery-image" src="images/Kategorien/Schwangerschaftsbilder/MIRAC 21.jpg" alt="Schwangerschaftsbild 23">
+                </div>
+            </section>
+
+            <section class="category-showcase" data-category-name="Kitabilder">
+                <h3>Kitabilder</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Kitabilder/Kitabilder-1.jpeg" alt="Kitabilder-1">
+                    <img class="category-gallery-image" src="images/Kategorien/Kitabilder/Kitabilder-2.jpeg" alt="Kitabilder-2">
+                    <img class="category-gallery-image" src="images/Kategorien/Kitabilder/Kitabilder-3.jpeg" alt="Kitabilder-3">
+                    <img class="category-gallery-image" src="images/Kategorien/Kitabilder/Kitabilder-4.jpeg" alt="Kitabilder-4">
+                    <img class="category-gallery-image" src="images/Kategorien/Kitabilder/Kitabilder-5.jpg" alt="Kitabilder-5">
+
+                </div>
+            </section>
+                        <section class="category-showcase" data-category-name="Babybilder">
+                <h3>Baby</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby01.jpeg" alt="Baby-01">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby02.jpeg" alt="Baby-02">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby03.jpeg" alt="Baby-03">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby04.jpeg" alt="Baby-04">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby05.jpeg" alt="Baby-05">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby06.jpeg" alt="Baby-06">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby07.jpeg" alt="Baby-07">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby08.jpeg" alt="Baby-08">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby09.jpeg" alt="Baby-09">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby10.jpeg" alt="Baby-10">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby11.jpeg" alt="Baby-11">
+                    <img class="category-gallery-image" src="images/Kategorien/babyshoting/Baby12.jpeg" alt="Baby-12">
+                    
+
+
+                </div>
+            </section>
+
+            <section class="category-showcase" data-category-name="Einschulung">
+                <h3>Einschulung</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-1.jpeg" alt="Einschulung Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-2.jpeg" alt="Einschulung Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-3.jpeg" alt="Einschulung Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-4.jpeg" alt="Einschulung Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-5.jpeg" alt="Einschulung Bild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-6.jpeg" alt="Einschulung Bild 6">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-7.jpeg" alt="Einschulung Bild 7">
+                    <img class="category-gallery-image" src="images/Kategorien/1_Schultag_Einschulung/1_Schultag_Einschulung-8.jpeg" alt="Einschulung Bild 8">
+                
+                </div>
+            </section>
+
+            <section class="category-showcase" data-category-name="Familienbilder">
+                <h3>Familienbilder</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Familienbilder/Familienbilder-1.jpeg" alt="Familienbilder Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Familienbilder/Familienbilder-2.jpeg" alt="Familienbilder Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Familienbilder/Familienbilder-3.jpeg" alt="Familienbilder Bild 3">
+
+                </div>
+            </section>
+
+
+
+            <section class="category-showcase" data-category-name="Cakesmash">
+                <h3>Cakesmash</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/211.jpeg" alt="Cakesmash Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/212.jpeg" alt="Cakesmash Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/213.jpeg" alt="Cakesmash Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/214.jpeg" alt="Cakesmash Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/215.jpeg" alt="Cakesmash Bild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/216.jpeg" alt="Cakesmash Bild 6">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/217.jpeg" alt="Cakesmash Bild 7">
+                    <img class="category-gallery-image" src="images/Kategorien/Cakesmash/218.jpeg" alt="Cakesmash Bild 8">
+
+                </div>
+            </section>
+
+
+
+
+            <section class="category-showcase" data-category-name="Weihnachtsshooting">
+                <h3>Weihnachtsshooting</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Weihnachtsshooting/111.jpeg" alt="Weihnachtsshooting Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Weihnachtsshooting/112.jpeg" alt="Weihnachtsshooting Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Weihnachtsshooting/113.jpeg" alt="Weihnachtsshooting Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Weihnachtsshooting/114.jpeg" alt="Weihnachtsshooting Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Weihnachtsshooting/115.jpeg" alt="Weihnachtsshooting Bild 5">
+                </div>
+            </section>
+
+            <section class="category-showcase" data-category-name="Studio">
+                <h3>Studio</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio01.png" alt="Studio Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio02.jpg" alt="Studio Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio03.jpg" alt="Studio Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio04.jpg" alt="Studio Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio05.jpg" alt="Studio Bild 5">
+                    <img class="category-gallery-image" src="images/Kategorien/Studio/Studio06.jpg" alt="Studio Bild 6">
+                </div>
+            </section>
+        </div>
+
+                    <section class="category-showcase" data-category-name="Outdoor Shootings">
+                <h3>Outdoor Shootings</h3>
+                <div class="category-gallery-grid">
+                    <img class="category-gallery-image" src="images/Kategorien/Outdoor_Shootings/outdoor-1.jpg" alt="Outdoor Shooting Bild 1">
+                    <img class="category-gallery-image" src="images/Kategorien/Outdoor_Shootings/outdoor-2.jpg" alt="Outdoor Shooting Bild 2">
+                    <img class="category-gallery-image" src="images/Kategorien/Outdoor_Shootings/outdoor-3.jpg" alt="Outdoor Shooting Bild 3">
+                    <img class="category-gallery-image" src="images/Kategorien/Outdoor_Shootings/outdoor-4.jpg" alt="Outdoor Shooting Bild 4">
+                    <img class="category-gallery-image" src="images/Kategorien/Outdoor_Shootings/outdoor-5.jpg" alt="Outdoor Shooting Bild 5">
+                </div>
+            </section>
+
+        <div class="category-lightbox" id="categoryLightbox" aria-hidden="true">
+            <div class="category-lightbox-content" role="dialog" aria-modal="true" aria-label="Bildansicht">
+                <div class="category-lightbox-header">
+                    <p class="category-lightbox-title" id="categoryLightboxTitle">Kategorie</p>
+                    <div class="category-lightbox-actions">
+                        <button type="button" class="category-lightbox-close" id="categoryLightboxClose" aria-label="Bildansicht schließen">×</button>
+                    </div>
+                </div>
+                <div class="category-lightbox-body">
+                    <button type="button" class="category-lightbox-nav" id="categoryLightboxPrev" aria-label="Vorheriges Bild">‹</button>
+                    <div class="category-lightbox-stage" id="categoryLightboxStage">
+                        <img id="categoryLightboxImage" class="category-lightbox-main" src="" alt="Großansicht Kategoriebild" draggable="false">
+                    </div>
+                    <button type="button" class="category-lightbox-nav" id="categoryLightboxNext" aria-label="Nächstes Bild">›</button>
+                </div>
+                <div class="category-lightbox-toolbar" aria-label="Zoom-Steuerung">
+                    <button type="button" class="category-lightbox-zoom" id="categoryZoomOut" aria-label="Rauszoomen">−</button>
+                    <span class="category-lightbox-zoom-level" id="categoryZoomLevel">100%</span>
+                    <button type="button" class="category-lightbox-zoom" id="categoryZoomIn" aria-label="Reinzoomen">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kontakt Overlay -->
+<div class="overlay" id="contactOverlay">
+    <div class="overlay-content">
+        <button class="close-btn" onclick="closeOverlay('contact')">×</button>
+        <h2>Kontakt</h2>
+        <p>Habt ihr Fragen oder möchtet ihr einen Termin vereinbaren? Ich freue mich auf eure Nachricht.</p>
+        <!-- From Uiverse.io by wilsondesouza --> 
+<ul class="example-2">
+    <li class="icon-content">
+        <a
+            data-social="whatsapp"
+            aria-label="Whatsapp"
+            href="https://api.whatsapp.com/send?phone=4917620306706"
+        >
+            <div class="filled"></div>
+            <svg
+                xml:space="preserve"
+                viewBox="0 0 24 24"
+                class="bi bi-whatsapp"
+                fill="currentColor"
+                height="24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    fill="currentColor"
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
+                ></path>
+            </svg>
+        </a>
+        <div class="tooltip">Whatsapp</div>
+    </li>
+    <li class="icon-content">
+        <a
+            data-social="facebook"
+            aria-label="Facebook"
+            href="https://www.facebook.com/share/1C7x4fRFdn/?mibextid=wwXIfr"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="filled"></div>
+            <svg
+                xml:space="preserve"
+                viewBox="0 0 24 24"
+                class="bi bi-facbook"
+                fill="currentColor"
+                height="24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    fill="currentColor"
+                    d="M23.9981 11.9991C23.9981 5.37216 18.626 0 11.9991 0C5.37216 0 0 5.37216 0 11.9991C0 17.9882 4.38789 22.9522 10.1242 23.8524V15.4676H7.07758V11.9991H10.1242V9.35553C10.1242 6.34826 11.9156 4.68714 14.6564 4.68714C15.9692 4.68714 17.3424 4.92149 17.3424 4.92149V7.87439H15.8294C14.3388 7.87439 13.8739 8.79933 13.8739 9.74824V11.9991H17.2018L16.6698 15.4676H13.8739V23.8524C19.6103 22.9522 23.9981 17.9882 23.9981 11.9991Z"
+                ></path>
+            </svg>
+        </a>
+        <div class="tooltip">Facebook</div>
+    </li>
+    <li class="icon-content">
+        <a
+            data-social="instagram"
+            aria-label="Instagram"
+            href="https://www.instagram.com/deryacanphotography?mdxt=MXYzYzNtbTRtanpkeA=="
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="filled"></div>
+            <svg
+                xml:space="preserve"
+                viewBox="0 0 16 16"
+                class="bi bi-instagram"
+                fill="currentColor"
+                height="16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    fill="currentColor"
+                    d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"
+                ></path>
+            </svg>
+        </a>
+        <div class="tooltip">Instagram</div>
+    </li>
+</ul>
+
+        <!-- From Uiverse.io by wilsondesouza --> 
+
+
+        <div class="contact-address">
+            <h3>Studio</h3>
+            <p><strong>Derya Can Photography</strong><br>
+            Gewerbestraße 4, 58791 Werdohl, Deutschland<br>
+         <!-- Telefon/WhatsApp: <a href="tel:+4917620306706">+49 176 20306706</a><br>-->
+            <!-- E-Mail: nashwan-albayati@hotmail.com -->
+        </div>
+        <div class="map-container">
+            <iframe
+                src="https://www.google.com/maps?q=Gewerbestra%C3%9Fe%204%2C%2058791%20Werdohl%2C%20Deutschland&output=embed"
+                width="100%" height="400" style="border:0; border-radius: 12px; opacity: 0.9;"
+                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="overlay-map">
+            </iframe>
+            <!---->
+        <!-- <form class="contact-form" onsubmit="handleSubmit(event)">
+            <label>Vor- und Nachname</label>
+            <input type="text" name="name" placeholder="Euer Name" required>
+            <label>E-Mail</label>
+            <input type="email" name="email" placeholder="E-Mail" required>
+            <label>Betreff</label>
+            <input type="text" name="subject" placeholder="Worum geht es?" required>
+            <label>Nachricht</label>
+            <textarea name="message" placeholder="Erzählt mir mehr..." required></textarea>
+            <button type="submit" class="submit-btn">Nachricht senden</button>
+        </form> -->
+        </div>
+    </div>
+</div>
+<!-- Privacy Overlay -->
+        <div class="overlay" id="privacyOverlay">
+                <div class="overlay-content">
+                        <button class="close-btn" onclick="closeOverlay('privacy')">×</button>
+                        <h2>Datenschutz</h2>
+                        <p>Bei Derya Can Photography hat der Schutz eurer Privatsphaere hohe Prioritaet. In dieser Datenschutzerklaerung erfahrt ihr, welche Daten wir erfassen, wie wir sie nutzen und wie wir sie schuetzen.</p>
+            
+                        <p><strong>Welche Daten wir erfassen:</strong> Wir koennen personenbezogene Daten wie Name, E-Mail-Adresse und weitere Angaben erfassen, die ihr uns ueber Formulare sendet. Zusaetzlich koennen technische Daten wie Browsertyp, IP-Adresse und besuchte Seiten zu Analysezwecken erfasst werden.</p>
+            
+                        <p><strong>Wie wir Daten nutzen:</strong> Wir nutzen die erhobenen Informationen, um auf Anfragen zu antworten, unsere Website zu verbessern und auf Wunsch gelegentliche Updates zu senden. Wir verkaufen oder vermieten keine personenbezogenen Daten an Dritte.</p>
+            
+                        <p><strong>Datensicherheit:</strong> Wir verwenden geeignete Sicherheitsmassnahmen, um personenbezogene Daten vor unbefugtem Zugriff, Offenlegung oder Missbrauch zu schuetzen. Formulare werden sicher uebertragen.</p>
+            
+                        <p><strong>Cookies:</strong> Unsere Website kann Cookies nutzen, um die Nutzererfahrung zu verbessern und Analysen zu ermoeglichen. Ihr koennt Cookies im Browser deaktivieren, wodurch einzelne Funktionen eingeschraenkt sein koennen.</p>
+            
+                        <p><strong>Dienste von Drittanbietern:</strong> Wir nutzen gegebenenfalls externe Dienste fuer Inhalte und Einbindungen. Fuer diese Dienste gelten deren eigene Datenschutzrichtlinien.</p>
+            
+                        <p><strong>Eure Rechte:</strong> Ihr habt das Recht auf Auskunft, Berichtigung und Loeschung eurer gespeicherten personenbezogenen Daten. Dafuer koennt ihr uns ueber das Kontaktformular erreichen.</p>
+            
+                        <p><strong>Aenderungen:</strong> Diese Datenschutzerklaerung kann von Zeit zu Zeit angepasst werden. Aenderungen werden auf dieser Seite veroeffentlicht.</p>
+            
+                        <p>Wenn ihr Fragen zum Datenschutz habt, kontaktiert uns jederzeit gerne.</p>
+                </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="ui-element">
+                <p>Copyright © 2027 Nashwan | <a href="#" onclick="openOverlay('privacy'); return false;">Datenschutz</a> | <a href="https://www.instagram.com/nb1501501?rpxt=MW0xbjE4azFqcjhyaQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">VIT</a></p>
+        </footer>
+<script src="tooplate-living-scripts.js"></script>
+<script>
+    function closeAllOverlays() {
+        document.querySelectorAll('.overlay').forEach((overlay) => {
+            overlay.classList.remove('active');
+        });
+    }
+
+    function openOverlay(name) {
+        closeAllOverlays();
+        const overlay = document.getElementById(name + 'Overlay');
+        if (!overlay) return;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (typeof clearInterval === 'function') {
+            clearInterval(autoPlayInterval);
+        }
+    }
+
+    function closeOverlay(name) {
+        const overlay = document.getElementById(name + 'Overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        const remaining = document.querySelector('.overlay.active');
+        document.body.style.overflow = remaining ? 'hidden' : '';
+    }
+</script>
+<script>
+    (function () {
+        const categoriesOverlay = document.getElementById("categoriesOverlay");
+        if (!categoriesOverlay) return;
+
+        const lightbox = document.getElementById("categoryLightbox");
+        if (lightbox && lightbox.parentElement !== document.body) {
+            document.body.appendChild(lightbox);
+        }
+        const lightboxImg = document.getElementById("categoryLightboxImage");
+        const lightboxTitle = document.getElementById("categoryLightboxTitle");
+        const lightboxStage = document.getElementById("categoryLightboxStage");
+        const closeBtn = document.getElementById("categoryLightboxClose");
+        const prevBtn = document.getElementById("categoryLightboxPrev");
+        const nextBtn = document.getElementById("categoryLightboxNext");
+        const zoomInBtn = document.getElementById("categoryZoomIn");
+        const zoomOutBtn = document.getElementById("categoryZoomOut");
+        const zoomLevel = document.getElementById("categoryZoomLevel");
+        const gallerySections = categoriesOverlay.querySelectorAll(".category-showcase");
+
+        let currentGallery = [];
+        let currentIndex = 0;
+        let currentCategoryName = "";
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        const minScale = 1;
+        const maxScale = 4;
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function updateZoomLabel() {
+            zoomLevel.textContent = Math.round(scale * 100) + "%";
+        }
+
+        function clampOffsets() {
+            const maxX = ((lightboxStage.clientWidth * scale) - lightboxStage.clientWidth) / 2;
+            const maxY = ((lightboxStage.clientHeight * scale) - lightboxStage.clientHeight) / 2;
+            offsetX = clamp(offsetX, -Math.max(maxX, 0), Math.max(maxX, 0));
+            offsetY = clamp(offsetY, -Math.max(maxY, 0), Math.max(maxY, 0));
+        }
+
+        function applyTransform(smooth) {
+            lightboxImg.style.transition = smooth ? "transform 0.2s ease" : "transform 0s";
+            lightboxImg.style.transform = "translate(" + offsetX + "px, " + offsetY + "px) scale(" + scale + ")";
+            lightboxStage.classList.toggle("zoomed", scale > 1);
+            updateZoomLabel();
+        }
+
+        function resetZoom(smooth) {
+            scale = 1;
+            offsetX = 0;
+            offsetY = 0;
+            applyTransform(smooth);
+        }
+
+        function stepZoom(delta) {
+            const nextScale = clamp(scale + delta, minScale, maxScale);
+            if (nextScale === scale) return;
+            scale = nextScale;
+            clampOffsets();
+            applyTransform(true);
+        }
+
+        function renderLightbox() {
+            if (!currentGallery.length) return;
+            const image = currentGallery[currentIndex];
+            lightboxImg.src = image.src;
+            lightboxImg.alt = image.alt || currentCategoryName;
+            lightboxTitle.textContent = currentCategoryName + " - Bild " + (currentIndex + 1) + " von " + currentGallery.length;
+            resetZoom(false);
+        }
+
+        function openLightbox(images, index, categoryName) {
+            currentGallery = images;
+            currentIndex = index;
+            currentCategoryName = categoryName;
+            renderLightbox();
+            lightbox.classList.add("active");
+            lightbox.setAttribute("aria-hidden", "false");
+            lightboxImg.classList.remove("opening");
+            requestAnimationFrame(() => {
+                lightboxImg.classList.add("opening");
+            });
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove("active");
+            lightbox.setAttribute("aria-hidden", "true");
+            lightboxImg.src = "";
+            lightboxImg.classList.remove("opening");
+            document.body.style.overflow = "";
+            resetZoom(false);
+        }
+
+        function showNext() {
+            if (!currentGallery.length) return;
+            currentIndex = (currentIndex + 1) % currentGallery.length;
+            renderLightbox();
+        }
+
+        function showPrev() {
+            if (!currentGallery.length) return;
+            currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+            renderLightbox();
+        }
+
+        gallerySections.forEach((section) => {
+            const categoryName = section.dataset.categoryName || "Kategorie";
+            const images = Array.from(section.querySelectorAll(".category-gallery-image"));
+            images.forEach((image, index) => {
+                image.dataset.galleryIndex = String(index);
+                image.dataset.galleryCategoryName = categoryName;
+            });
+        });
+
+        document.addEventListener("click", (event) => {
+            const image = event.target.closest(".category-gallery-image");
+            if (!image) return;
+
+            const section = image.closest(".category-showcase");
+            if (!section) return;
+
+            const categoryName = section.dataset.categoryName || image.dataset.galleryCategoryName || "Kategorie";
+            const images = Array.from(section.querySelectorAll(".category-gallery-image"));
+            const index = images.indexOf(image);
+            if (index < 0) return;
+
+            openLightbox(images, index, categoryName);
+        });
+
+        closeBtn.addEventListener("click", closeLightbox);
+        nextBtn.addEventListener("click", showNext);
+        prevBtn.addEventListener("click", showPrev);
+
+        zoomInBtn.addEventListener("click", () => stepZoom(0.25));
+        zoomOutBtn.addEventListener("click", () => stepZoom(-0.25));
+
+        lightboxStage.addEventListener("wheel", (event) => {
+            event.preventDefault();
+            stepZoom(event.deltaY < 0 ? 0.15 : -0.15);
+        }, { passive: false });
+
+        lightboxStage.addEventListener("pointerdown", (event) => {
+            if (scale <= 1) return;
+            isDragging = true;
+            dragStartX = event.clientX - offsetX;
+            dragStartY = event.clientY - offsetY;
+            lightboxStage.classList.add("dragging");
+        });
+
+        lightboxStage.addEventListener("pointermove", (event) => {
+            if (!isDragging) return;
+            offsetX = event.clientX - dragStartX;
+            offsetY = event.clientY - dragStartY;
+            clampOffsets();
+            applyTransform(false);
+        });
+
+        lightboxStage.addEventListener("pointerup", (event) => {
+            if (!isDragging) return;
+            isDragging = false;
+            lightboxStage.classList.remove("dragging");
+        });
+
+        lightboxStage.addEventListener("pointercancel", () => {
+            isDragging = false;
+            lightboxStage.classList.remove("dragging");
+        });
+
+        lightbox.addEventListener("click", (event) => {
+            if (event.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (!lightbox.classList.contains("active")) return;
+            if (event.key === "Escape") closeLightbox();
+            if (event.key === "ArrowRight") showNext();
+            if (event.key === "ArrowLeft") showPrev();
+            if (event.key === "+" || event.key === "=") stepZoom(0.2);
+            if (event.key === "-") stepZoom(-0.2);
+            if (event.key.toLowerCase() === "r") resetZoom(true);
+        });
+    })();
+</script>
+</body>
+</html>
